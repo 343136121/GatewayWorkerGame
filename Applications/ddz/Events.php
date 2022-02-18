@@ -13,6 +13,7 @@
  */
 
 use classes\PokeUtil;
+use GatewayWorker\Lib\Db;
 /**
  * 用于检测业务代码死循环或者长时间阻塞等问题
  * 如果发现业务卡死，可以将下面declare打开（去掉//注释），并执行php start.php reload
@@ -41,6 +42,16 @@ class Events {
 //        Gateway::sendToClient($client_id, "Hello $client_id\r\n");
 //        // 向所有人发送
 //        Gateway::sendToAll("$client_id login\r\n");
+
+        $db = Db::instance('app_ddz');
+        $res = $db->select('*')->from('game')
+//            ->where()
+            ->query();
+
+        $data = [
+            '$res'=>$res
+        ];
+        Gateway::sendToClient($client_id, json_encode($data));
     }
 
     /**
@@ -67,10 +78,28 @@ class Events {
             case 'start':
                 $pokeUtil = new PokeUtil();
                 // 确认三个player座位，分别发牌即可
+            $init = $pokeUtil->Init();
                 Gateway::sendToClient($client_id, json_encode([
+                    '$client_id'=>$client_id,
                     'type'=>'hand',
-                    'data'=>$pokeUtil->Init()['$player1']
+                    'data'=>$init['$player1'],
+                    'pokeType'=>$init['pokeType']
                 ]));
+                break;
+            case 'sit':
+                /*
+                 * 首先通过bindUid 绑定用户和clientid
+                 * 数据库判断是否能坐下
+                 * 坐下则加入group joinGroup。离开就leaveGroup
+                 * 三方 都按开始 则改变房间或游戏状态
+                 * 生成游戏记录 确定玩家座次 入数据库
+                 * 分别给每位玩家发牌。
+                 * 每次出牌方，包含牌型大小轮次等 发送给后端，再由后端发给其他人
+                 * 当一方手牌为0时发送获胜请求，后端再群发
+                 *
+                 *
+                 */
+
                 break;
         }
 
