@@ -14,6 +14,7 @@
 
 use classes\PokeUtil;
 use GatewayWorker\Lib\Db;
+use classes\Game;
 /**
  * 用于检测业务代码死循环或者长时间阻塞等问题
  * 如果发现业务卡死，可以将下面declare打开（去掉//注释），并执行php start.php reload
@@ -72,34 +73,29 @@ class Events {
             return false;
         }
 
+        /*
+         * 考虑使用邀请码来定位某一个房间
+         * 首先通过bindUid 绑定用户和clientid，测试就直接使用clientid
+         * 数据库判断是否能坐下
+         * 坐下则加入group joinGroup。离开就leaveGroup
+         * 三方 都按开始 则改变房间或游戏状态
+         * 生成游戏记录 确定玩家座次 入数据库
+         * 分别给每位玩家发牌。分别给对应位置的人发消息，其中有牌组
+         * 每次出牌方，包含牌型大小轮次等 发送给后端，再由后端发给其他人
+         * 当一方手牌为0时发送获胜请求，后端再群发
+         *
+         *
+         */
         switch ($dataArr['type']){
             case 'ping':
                 break;
-            case 'start':
-                $pokeUtil = new PokeUtil();
-                // 确认三个player座位，分别发牌即可
-            $init = $pokeUtil->Init();
-                Gateway::sendToClient($client_id, json_encode([
-                    '$client_id'=>$client_id,
-                    'type'=>'hand',
-                    'data'=>$init['$player1'],
-                    'pokeType'=>$init['pokeType']
-                ]));
+            case 'ready':
+                Game::ready($client_id,$dataArr);
                 break;
-            case 'sit':
-                /*
-                 * 首先通过bindUid 绑定用户和clientid
-                 * 数据库判断是否能坐下
-                 * 坐下则加入group joinGroup。离开就leaveGroup
-                 * 三方 都按开始 则改变房间或游戏状态
-                 * 生成游戏记录 确定玩家座次 入数据库
-                 * 分别给每位玩家发牌。
-                 * 每次出牌方，包含牌型大小轮次等 发送给后端，再由后端发给其他人
-                 * 当一方手牌为0时发送获胜请求，后端再群发
-                 *
-                 *
-                 */
 
+            case 'sit':
+                // 可用定时脚本检测掉线用户?
+                Game::sit($client_id);
                 break;
         }
 
