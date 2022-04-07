@@ -132,7 +132,7 @@ class Game{
                 'data'=>[
                     'player1'=>$init['player1'],
                     'player2'=>$init['player2'],
-                    'player3'=>$init['player2'],
+                    'player3'=>$init['player3'],
                     'boss'=>$init['boss'],
                 ]
             ]));
