@@ -61,13 +61,13 @@ class Game{
         // 加入组
         Gateway::joinGroup($client_id,$room['id']);
 
-        // 告知自己的座位号
+        // 告知自己的座位信息
         Gateway::sendToClient($client_id,json_encode([
             'type'=>'sit',
             'status'=>1,
             'info'=>'成功',
             'data'=>[
-                'seat'=>$seatEmpty['seat']
+                'seat'=>$seatEmpty
             ]
         ]));
 
@@ -91,7 +91,7 @@ class Game{
 
     // 准备与开始游戏
     public static function ready($client_id,$dataArr){
-        PokeUtil::writeFile(print_r($dataArr,true));
+//        PokeUtil::writeFile(print_r($dataArr,true));
         $room_id = $dataArr['room_id'];
         $seat = $dataArr['seat'];
 
@@ -125,6 +125,17 @@ class Game{
             $pokeUtil = new PokeUtil();
             $init = $pokeUtil->Init();
 
+            $seatStart = mt_rand(1,3);
+            // 插入一条游戏数据，返回game_id，前端存储下
+            $game_id = $db->insert('game')->cols([
+                'room_id'=>$room_id,
+                'poke_player1'=>json_encode($init['player1']),
+                'poke_player2'=>json_encode($init['player2']),
+                'poke_player3'=>json_encode($init['player3']),
+                'poke_boss'=>json_encode($init['boss']),
+                'seat_start'=>$seatStart,
+            ])->query();
+
             Gateway::sendToGroup($room_id,json_encode([
                 'type'=>'start',
                 'status'=>1,
@@ -134,10 +145,41 @@ class Game{
                     'player2'=>$init['player2'],
                     'player3'=>$init['player3'],
                     'boss'=>$init['boss'],
+//                    'seat'=>$seatStart,
+                    'seat' => 3,
+                    'game_id'=>$game_id
                 ]
             ]));
         }
 
+    }
+
+    public static function jiao($client_id,$dataArr){
+        $room_id = $dataArr['room_id'];
+        $game_id = $dataArr['game_id'];
+        $room_seat_id = $dataArr['room_seat_id'];
+
+        $db = Db::instance('app_ddz');
+        $seat = $db->select('*')->from('room_seat')
+            ->where("id = {$room_seat_id}")
+            ->row();
+
+        $game_log_id = $db->insert('game_log')->cols([
+            'game_id'=>$game_id,
+            'room_seat_id'=>$room_seat_id,
+            'type'=>1,
+            'value'=>$dataArr['jiao']
+        ])->query();
+
+        // 通知大家下一轮
+        Gateway::sendToGroup($room_id,json_encode([
+            'type'=> $dataArr['jiao'] == 1?'jiao_over':'jiao',
+            'status'=>1,
+            'info'=>'成功',
+            'data'=>[
+                'seatNext' => $dataArr['jiao'] == 1? $seat['seat'] :(($seat['seat']+1)%3 == 0 ? 3 : ($seat['seat']+1)%3)
+            ]
+        ]));
     }
 
 

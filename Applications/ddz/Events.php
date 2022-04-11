@@ -97,6 +97,13 @@ class Events {
                 // 可用定时脚本检测掉线用户?
                 Game::sit($client_id);
                 break;
+            case 'jiao':
+                // 是否叫地主
+                Game::jiao($client_id,$dataArr);
+                break;
+            case 'chu':
+                // 出牌
+                break;
         }
 
 
