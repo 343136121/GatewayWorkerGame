@@ -182,5 +182,40 @@ class Game{
         ]));
     }
 
+    public static function chupai($client_id,$dataArr){
+        $room_id = $dataArr['room_id'];
+        $game_id = $dataArr['game_id'];
+        $room_seat_id = $dataArr['room_seat_id'];
+        $seatChupai = $dataArr['seatChupai'];
+        $pokeOut = $dataArr['pokeOut'];
+        $pokeHand = $dataArr['pokeHand'];
+        $checkedPokeOut = $dataArr['checkedPokeOut'];
+
+        $db = Db::instance('app_ddz');
+        $seat = $db->select('*')->from('room_seat')
+            ->where("id = {$room_seat_id}")
+            ->row();
+
+//        $game_log_id = $db->insert('game_log')->cols([
+//            'game_id'=>$game_id,
+//            'room_seat_id'=>$room_seat_id,
+//            'type'=>1,
+//            'value'=>$checkedPokeOut
+//        ])->query();
+
+        Gateway::sendToGroup($room_id,json_encode([
+            'type'=> 'chupai',
+            'status'=>1,
+            'info'=>'成功',
+            'data'=>[
+                'type'=>'chupai',
+                'seatChupai'=> $seat['seat'],
+                'seatNext' => (($seat['seat']+1)%3 == 0 ? 3 : ($seat['seat']+1)%3),
+                'pokeOut'=>$pokeOut,
+                'pokeHand'=>$pokeHand,
+                'checkedPokeOut'=>$checkedPokeOut
+            ]
+        ]));
+    }
 
 }

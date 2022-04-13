@@ -44,15 +44,15 @@ class Events {
 //        // 向所有人发送
 //        Gateway::sendToAll("$client_id login\r\n");
 
-        $db = Db::instance('app_ddz');
-        $res = $db->select('*')->from('game')
-//            ->where()
-            ->query();
-
-        $data = [
-            '$res'=>$res
-        ];
-        Gateway::sendToClient($client_id, json_encode($data));
+//        $db = Db::instance('app_ddz');
+//        $res = $db->select('*')->from('game')
+////            ->where()
+//            ->query();
+//
+//        $data = [
+//            '$res'=>$res
+//        ];
+//        Gateway::sendToClient($client_id, json_encode($data));
     }
 
     /**
@@ -101,8 +101,9 @@ class Events {
                 // 是否叫地主
                 Game::jiao($client_id,$dataArr);
                 break;
-            case 'chu':
+            case 'chupai':
                 // 出牌
+                Game::chupai($client_id,$dataArr);
                 break;
         }
 
