@@ -209,7 +209,7 @@ class Game{
             'info'=>'成功',
             'data'=>[
                 'type'=>'chupai',
-                'seatChupai'=> $seat['seat'],
+                'seatChupai'=> $seatChupai,
                 'seatNext' => (($seat['seat']+1)%3 == 0 ? 3 : ($seat['seat']+1)%3),
                 'pokeOut'=>$pokeOut,
                 'pokeHand'=>$pokeHand,
