@@ -101,11 +101,14 @@ class Game{
             'status'=>2
         ])->where("room_id={$room_id} and seat={$seat}")->query();
 
-        // 使前台的准备按钮发生变化
-        Gateway::sendToClient($client_id,json_encode([
+        // 使前台的准备按钮以及是否已准备发生变化
+        Gateway::sendToGroup($room_id,json_encode([
             'type'=>'ready',
             'status'=>1,
-            'info'=>'成功'
+            'info'=>'成功',
+            'data'=>[
+                'seat'=>$seat
+            ]
         ]));
 
         // 如果全都准备，则发牌，开始游戏
