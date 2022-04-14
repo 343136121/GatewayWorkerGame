@@ -203,19 +203,38 @@ class Game{
 //            'value'=>$checkedPokeOut
 //        ])->query();
 
-        Gateway::sendToGroup($room_id,json_encode([
-            'type'=> 'chupai',
-            'status'=>1,
-            'info'=>'成功',
-            'data'=>[
-                'type'=>'chupai',
-                'seatChupai'=> $seatChupai,
-                'seatNext' => (($seat['seat']+1)%3 == 0 ? 3 : ($seat['seat']+1)%3),
-                'pokeOut'=>$pokeOut,
-                'pokeHand'=>$pokeHand,
-                'checkedPokeOut'=>$checkedPokeOut
-            ]
-        ]));
+        if(empty($pokeHand) || sizeof($pokeHand) == 0){
+            Gateway::sendToGroup($room_id,json_encode([
+                'type'=> 'win',
+                'status'=>1,
+                'info'=>'成功',
+                'data'=>[
+                    'seat' => $seat,
+                    'type'=>'chupai',
+                    'seatChupai'=> $seatChupai,
+                    'seatNext' => (($seat['seat']+1)%3 == 0 ? 3 : ($seat['seat']+1)%3),
+                    'pokeOut'=>$pokeOut,
+                    'pokeHand'=>$pokeHand,
+                    'checkedPokeOut'=>$checkedPokeOut
+                ]
+            ]));
+        }else{
+            Gateway::sendToGroup($room_id,json_encode([
+                'type'=> 'chupai',
+                'status'=>1,
+                'info'=>'成功',
+                'data'=>[
+                    'type'=>'chupai',
+                    'seatChupai'=> $seatChupai,
+                    'seatNext' => (($seat['seat']+1)%3 == 0 ? 3 : ($seat['seat']+1)%3),
+                    'pokeOut'=>$pokeOut,
+                    'pokeHand'=>$pokeHand,
+                    'checkedPokeOut'=>$checkedPokeOut
+                ]
+            ]));
+        }
+
+
     }
 
 }
