@@ -7,8 +7,8 @@ use \GatewayWorker\Lib\Gateway;
 
 class Game{
 
-    public static function sit($client_id){
-        $room_id = 1;
+    public static function sit($client_id,$dataArr){
+        $room_id = $dataArr['room_id'];
 
         $db = Db::instance('app_ddz');
         $db->beginTrans();

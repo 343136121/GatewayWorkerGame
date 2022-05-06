@@ -95,7 +95,7 @@ class Events {
 
             case 'sit':
                 // 可用定时脚本检测掉线用户?
-                Game::sit($client_id);
+                Game::sit($client_id,$dataArr);
                 break;
             case 'jiao':
                 // 是否叫地主
