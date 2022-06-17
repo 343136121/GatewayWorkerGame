@@ -4,8 +4,50 @@ namespace classes;
 
 use GatewayWorker\Lib\Db;
 use \GatewayWorker\Lib\Gateway;
+use classes\Curl;
 
 class Game{
+    const REQUEST_URL = "https://third.nj.nbtv.cn/v2/open/user/get";
+
+    public static function login($client_id,$dataArr){
+        $key = 'go9dnk49bkd9jd9ymel1kg6w0803mgq3';
+        $appSecret = 'GOPtocNiBy';
+        $current = time();
+
+        $params = [
+            'access_token' => $dataArr['access_token'],
+            'host' => $dataArr['host'],
+            'timestamp' => $current
+        ];
+        $header['appkey'] = $key;
+        $header['nonce'] = rand(0, 99999);
+        $header['curtime'] = $current;
+        $header['checksum'] = sha1($appSecret . $header['nonce'] .  $header['curtime']);
+
+        $curl = new Curl();
+        $header = [
+            "Content-Type: application/x-www-form-urlencoded;charset=utf-8",
+            "appkey: {$header['appkey']}",
+            "nonce: {$header['nonce']}",
+            "curtime: {$header['curtime']}",
+            "checksum: {$header['checksum']}",
+        ];
+
+
+        try {
+            $res = $curl->setOption(CURLOPT_POSTFIELDS, http_build_query($params))
+                ->setOption(CURLOPT_HTTPHEADER, $header)
+                ->setOption(CURLOPT_SSL_VERIFYPEER, false)
+                ->post(self::REQUEST_URL);
+
+            Gateway::sendToClient($client_id,json_encode([
+                'type'=>'login',
+                'data'=>json_decode($res,true)
+            ]));
+        } catch (\Exception $e) {
+            // 记录日志
+        }
+    }
 
     public static function sit($client_id,$dataArr){
         $room_id = $dataArr['room_id'];

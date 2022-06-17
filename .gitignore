@@ -5,8 +5,8 @@
 /nbproject/private/
 /Applications/YourApp/
 vendor/workerman/workerman.log
-vendor/workerman/_var_www_html_gateway_worker_start.php.pid
 workerman.log
-_var_www_html_gateway_worker_start.php.pid
 Applications/dknb_live/Config/main.php
 Applications/czyml/Config/Db.php
+*.pid
+*.log

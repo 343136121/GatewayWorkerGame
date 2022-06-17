@@ -89,6 +89,9 @@ class Events {
         switch ($dataArr['type']){
             case 'ping':
                 break;
+            case 'login':
+                Game::login($client_id,$dataArr);
+                break;
             case 'ready':
                 Game::ready($client_id,$dataArr);
                 break;
